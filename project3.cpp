@@ -109,8 +109,6 @@ void passiveMotion(int x, int y) {
 void drawScene() {
 	int width = glutGet(GLUT_WINDOW_WIDTH);
 	int height = glutGet(GLUT_WINDOW_HEIGHT);
-	float midX = (float) width / 2;
-	float midY = (float) height / 2;
 	
 	glColor3f(1, 1, 1);
 	
@@ -143,39 +141,58 @@ void drawScene() {
 	glutPostRedisplay();
 }
 
-void display() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-	
-	camera.render();
-	
-	drawScene();
-	
-	glutSwapBuffers();
-}
-
-void setViewport(int w, int h) {
+void setMainViewport(int w, int h) {
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
 	gluPerspective(60, w / h, 0.5f, 20);
 	glMatrixMode(GL_MODELVIEW);
-	camera.render();
+}
+
+void setSecondaryViewport(int width, int height) {
+	glScissor(width - 210, height - 210, 200, 200);
+	
+	glEnable(GL_SCISSOR_TEST);
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	glViewport(width - 210, height - 210, 200, 200);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	
+	glOrtho(-10, 10, -10, 10, 0.5f, 20);
+	glMatrixMode(GL_MODELVIEW);
+	
+	glDisable(GL_SCISSOR_TEST);
+}
+
+void display() {
+	int width = glutGet(GLUT_WINDOW_WIDTH);
+	int height = glutGet(GLUT_WINDOW_HEIGHT);
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	
+	setMainViewport(width, height);
+	glPushMatrix();
+		camera.render();
+		drawScene();
+	glPopMatrix();
+	
+	setSecondaryViewport(width, height);
+	drawScene();
+	
+	glutSwapBuffers();
 }
 
 void initGL() {
 	glClearColor(0, 0, 0, 1);
 	glEnable(GL_DEPTH_TEST);
-	
-	int w = glutGet(GLUT_WINDOW_WIDTH);
-	int h = glutGet(GLUT_WINDOW_HEIGHT);
-	
-	setViewport(w, h);
 }
 
 void reshape(int w, int h) {
-	setViewport(w, h);
+	
 }
 
 int main( int argc, char** argv ) {
