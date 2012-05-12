@@ -150,7 +150,7 @@ void drawScene() {
 		glPushMatrix();
 			glTranslatef(iter->position.x, iter->position.y, iter->position.z);
 			
-			gluSphere(bullet, 0.1f, 4, 4);
+			gluSphere(bullet, 0.05f, 10, 10);
 		glPopMatrix();
 		
 		gluDeleteQuadric(bullet);
@@ -163,6 +163,8 @@ void drawScene() {
 
 					new1.position = asteroid->position;
 					new2.position = new1.position;
+					
+					new2.direction = new1.direction * -1;
 
 					asteroids.push_back(new1);
 					asteroids.push_back(new2);
