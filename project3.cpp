@@ -150,7 +150,7 @@ void drawScene() {
 		glPushMatrix();
 			glTranslatef(iter->position.x, iter->position.y, iter->position.z);
 			
-			gluSphere(bullet, 0.1f, 5, 5);
+			gluSphere(bullet, 0.1f, 4, 4);
 		glPopMatrix();
 		
 		gluDeleteQuadric(bullet);
@@ -299,7 +299,6 @@ int main( int argc, char** argv ) {
 	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
-	
 	glutReshapeFunc(reshape);
 	
 	glutCreateWindow("CG1 Project 3 (Mike Lentini)");
