@@ -13,9 +13,12 @@
 #endif
 
 #include "Camera.h"
+#include "Asteroid.h"
+#include <list>
 
 Camera camera;
 bool fillShapes = false;
+list<Asteroid> asteroids;
 
 float lastX = 0;
 float lastY = 0;
@@ -64,7 +67,8 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		// 'r' key
 		case 114:
-			
+			camera = Camera();
+			fillShapes = false;
 			break;
 	}
 }
@@ -73,15 +77,20 @@ void keyboard(unsigned char key, int x, int y) {
  * Called when the mouse button is pressed.
  */
 void mouse(int button, int state, int x, int y) {
-	
-}
-
-
-/*
- * Called when mouse is moved with button pressed.
- */
-void motion(int x, int y) {
-
+	switch (button) {
+		case GLUT_LEFT_BUTTON:
+			if (state == GLUT_DOWN) {
+				
+			}
+			
+			break;
+		case GLUT_RIGHT_BUTTON:
+			if (state == GLUT_DOWN) {
+				
+			}
+			
+			break;
+	}
 }
 
 /*
@@ -110,33 +119,44 @@ void drawScene() {
 	int width = glutGet(GLUT_WINDOW_WIDTH);
 	int height = glutGet(GLUT_WINDOW_HEIGHT);
 	
-	glColor3f(1, 1, 1);
-	
-	GLUquadric *quadric = gluNewQuadric();
-	GLUquadric *quadric2 = gluNewQuadric();
-	
-	if (!fillShapes) {
-		gluQuadricDrawStyle(quadric, GLU_LINE);
-		gluQuadricDrawStyle(quadric2, GLU_LINE);
+	if (fillShapes) {
+		glColor4ub(0, 0, 255, 125);
+		glutSolidCube(20);
 	} else {
-		gluQuadricDrawStyle(quadric, GLU_FILL);
-		gluQuadricDrawStyle(quadric2, GLU_FILL);
+		glColor4ub(0, 0, 255, 255);
+		glutWireCube(20);
 	}
 	
-	glPushMatrix();
-		glTranslatef(-0.5f, 0, -2);
+	glColor3f(1, 1, 1);
 	
-		gluSphere(quadric, 0.25f, 10, 10);
-	glPopMatrix();
-	
-	glPushMatrix();
-		glTranslatef(0.5f, 0, -2);
-		
-		gluSphere(quadric2, 0.25f, 10, 10);
-	glPopMatrix();
-	
-	gluDeleteQuadric(quadric);
-	gluDeleteQuadric(quadric2);
+	for (list<Asteroid>::iterator iter(asteroids.begin()); iter != asteroids.end(); ) {
+		if (false) {
+			iter = asteroids.erase(iter);
+		} else {
+			GLUquadric *asteroid = gluNewQuadric();
+			
+			if (!fillShapes) {
+				gluQuadricDrawStyle(asteroid, GLU_LINE);
+			} else {
+				gluQuadricDrawStyle(asteroid, GLU_FILL);
+			}
+			
+			glPushMatrix();
+				glTranslatef(iter->position.x, iter->position.y, iter->position.z);
+				glRotatef(iter->rotate, iter->position.x, iter->position.y, iter->position.z);
+				
+				if (iter->isSmall) {
+					glScalef(0.5f, 0.5f, 0.5f);
+				}
+				
+				gluSphere(asteroid, 0.25f, 10, 10);
+			glPopMatrix();
+			
+			gluDeleteQuadric(asteroid);
+			
+			iter++;
+		}
+	}
 	
 	glutPostRedisplay();
 }
@@ -161,7 +181,7 @@ void setSecondaryViewport(int width, int height) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
-	glOrtho(-10, 10, -10, 10, 0.5f, 20);
+	glOrtho(-10.1f, 10.1f, -10.1f, 10.1f, 0.5f, 20);
 	glMatrixMode(GL_MODELVIEW);
 	
 	glDisable(GL_SCISSOR_TEST);
@@ -189,10 +209,50 @@ void display() {
 void initGL() {
 	glClearColor(0, 0, 0, 1);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void reshape(int w, int h) {
 	
+}
+
+void idle() {
+	
+}
+
+void animateTimer(int value) {
+	for (list<Asteroid>::iterator iter(asteroids.begin()); iter != asteroids.end(); iter++) {
+		if (iter->position.x > 10 || iter->position.x < -10 || 
+			iter->position.y > 10 || iter->position.y < -10 || 
+			iter->position.z > 10 || iter->position.z < -10) {
+			iter = asteroids.erase(iter);
+			
+			asteroids.push_back(Asteroid(false));
+		} else {
+			iter->rotate += 1;
+			
+			if (iter->direction.x > 0) {
+				iter->position.x += 0.01f;
+			} else {
+				iter->position.x -= 0.01f;
+			}
+			
+			if (iter->direction.y > 0) {
+				iter->position.y += 0.01f;
+			} else {
+				iter->position.y -= 0.01f;
+			}
+			
+			if (iter->direction.z > 0) {
+				iter->position.z += 0.01f;
+			} else {
+				iter->position.z -= 0.01f;
+			}
+		}
+	}
+	
+	glutTimerFunc(10, animateTimer, 0);
 }
 
 int main( int argc, char** argv ) {
@@ -206,15 +266,21 @@ int main( int argc, char** argv ) {
 	glutCreateWindow("CG1 Project 3 (Mike Lentini)");
 	glutFullScreen();
 	
+	glutIdleFunc(idle);
 	glutKeyboardFunc(keyboard);
 	glutDisplayFunc(display);
-	glutMotionFunc(motion);
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passiveMotion);
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutWarpPointer(glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2);
 	
+	glutTimerFunc(10, animateTimer, 0);
+	
 	initGL();
+	
+	for (int i = 0; i < 49; i++) {
+		asteroids.push_back(Asteroid(false));
+	}
 
 	glutMainLoop();
 
