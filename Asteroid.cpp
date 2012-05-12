@@ -21,17 +21,21 @@ Asteroid::Asteroid(bool isSmall) {
 	int y = min + (rand() % (int)(max - min + 1));
 	int z = min + (rand() % (int)(max - min + 1));
 	
-	if (xDecider > 0) {
-		this->position = Vector3(10, y, z);
-		
-		if (xDir == 1) {
-			xDir = -1;
-		}
-	} else {
-		this->position = Vector3(-10, y, z);
-		
-		if (xDir == -1) {
-			xDir = 1;
+	// you should set the position to the position of the parent
+	// asteroid if it is a small asteroid! it doesn't do that here
+	if (!isSmall) {
+		if (xDecider > 0) {
+			this->position = Vector3(10, y, z);
+
+			if (xDir == 1) {
+				xDir = -1;
+			}
+		} else {
+			this->position = Vector3(-10, y, z);
+
+			if (xDir == -1) {
+				xDir = 1;
+			}
 		}
 	}
 	

@@ -13,12 +13,13 @@
 #endif
 
 #include "Camera.h"
-#include "Asteroid.h"
+#include "Bullet.h"
 #include <list>
 
 Camera camera;
 bool fillShapes = false;
 list<Asteroid> asteroids;
+list<Bullet> bullets;
 
 float lastX = 0;
 float lastY = 0;
@@ -78,7 +79,7 @@ void keyboard(unsigned char key, int x, int y) {
  */
 void mouse(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		
+		bullets.push_back(Bullet(camera.position, Vector3(camera.viewDir.x, camera.viewDir.y, camera.viewDir.z)));
 	}
 }
 
@@ -110,31 +111,74 @@ void drawScene() {
 	
 	glColor3f(1, 1, 1);
 	
-	for (list<Asteroid>::iterator iter(asteroids.begin()); iter != asteroids.end(); ) {
-		if (false) {
-			iter = asteroids.erase(iter);
+	for (list<Asteroid>::iterator iter(asteroids.begin()); iter != asteroids.end(); iter++) {
+		GLUquadric *asteroid = gluNewQuadric();
+
+		if (!fillShapes) {
+			gluQuadricDrawStyle(asteroid, GLU_LINE);
 		} else {
-			GLUquadric *asteroid = gluNewQuadric();
+			gluQuadricDrawStyle(asteroid, GLU_FILL);
+		}
+
+		glPushMatrix();
+		glTranslatef(iter->position.x, iter->position.y, iter->position.z);
+		glRotatef(iter->rotate, iter->position.x, iter->position.y, iter->position.z);
+
+		if (iter->isSmall) {
+			glScalef(0.5f, 0.5f, 0.5f);
+		}
+
+		gluSphere(asteroid, 0.25f, 10, 10);
+		glPopMatrix();
+
+		gluDeleteQuadric(asteroid);
+	}
+	
+	glColor3f(1, 0, 0);
+	
+	for (list<Bullet>::iterator iter(bullets.begin()); iter != bullets.end(); ) {
+		bool hitAsteroid = false;
+		
+		GLUquadric *bullet = gluNewQuadric();
+		
+		if (!fillShapes) {
+			gluQuadricDrawStyle(bullet, GLU_LINE);
+		} else {
+			gluQuadricDrawStyle(bullet, GLU_FILL);
+		}
+		
+		glPushMatrix();
+			glTranslatef(iter->position.x, iter->position.y, iter->position.z);
 			
-			if (!fillShapes) {
-				gluQuadricDrawStyle(asteroid, GLU_LINE);
-			} else {
-				gluQuadricDrawStyle(asteroid, GLU_FILL);
-			}
-			
-			glPushMatrix();
-				glTranslatef(iter->position.x, iter->position.y, iter->position.z);
-				glRotatef(iter->rotate, iter->position.x, iter->position.y, iter->position.z);
-				
-				if (iter->isSmall) {
-					glScalef(0.5f, 0.5f, 0.5f);
+			gluSphere(bullet, 0.1f, 5, 5);
+		glPopMatrix();
+		
+		gluDeleteQuadric(bullet);
+		
+		for (list<Asteroid>::iterator asteroid(asteroids.begin()); asteroid != asteroids.end(); ) {
+			if (iter->overlaps(asteroid->position.x, asteroid->position.y, asteroid->position.z, asteroid->isSmall)) {
+				if (!asteroid->isSmall) {
+					Asteroid new1(true);
+					Asteroid new2(true);
+
+					new1.position = asteroid->position;
+					new2.position = new1.position;
+
+					asteroids.push_back(new1);
+					asteroids.push_back(new2);
 				}
 				
-				gluSphere(asteroid, 0.25f, 10, 10);
-			glPopMatrix();
-			
-			gluDeleteQuadric(asteroid);
-			
+				asteroid = asteroids.erase(asteroid);
+				
+				hitAsteroid = true;
+			} else {
+				asteroid++;
+			}
+		}
+		
+		if (hitAsteroid) {
+			iter = bullets.erase(iter);
+		} else {
 			iter++;
 		}
 	}
@@ -203,7 +247,7 @@ void idle() {
 }
 
 void animateTimer(int value) {
-	for (list<Asteroid>::iterator iter(asteroids.begin()); iter != asteroids.end(); iter++) {
+	for (list<Asteroid>::iterator iter(asteroids.begin()); iter != asteroids.end(); ) {
 		if (iter->position.x > 10 || iter->position.x < -10 || 
 			iter->position.y > 10 || iter->position.y < -10 || 
 			iter->position.z > 10 || iter->position.z < -10) {
@@ -230,6 +274,20 @@ void animateTimer(int value) {
 			} else {
 				iter->position.z -= 0.01f;
 			}
+			
+			iter++;
+		}
+	}
+	
+	for (list<Bullet>::iterator iter(bullets.begin()); iter != bullets.end(); ) {
+		if (iter->position.x > 10 || iter->position.x < -10 || 
+			iter->position.y > 10 || iter->position.y < -10 || 
+			iter->position.z > 10 || iter->position.z < -10) {
+			iter = bullets.erase(iter);
+		} else {
+			iter->move();
+			
+			iter++;
 		}
 	}
 	
@@ -252,6 +310,7 @@ int main( int argc, char** argv ) {
 	glutDisplayFunc(display);
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passiveMotion);
+	glutMotionFunc(passiveMotion);
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutWarpPointer(glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2);
 	
