@@ -77,19 +77,8 @@ void keyboard(unsigned char key, int x, int y) {
  * Called when the mouse button is pressed.
  */
 void mouse(int button, int state, int x, int y) {
-	switch (button) {
-		case GLUT_LEFT_BUTTON:
-			if (state == GLUT_DOWN) {
-				
-			}
-			
-			break;
-		case GLUT_RIGHT_BUTTON:
-			if (state == GLUT_DOWN) {
-				
-			}
-			
-			break;
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		
 	}
 }
 
@@ -97,19 +86,11 @@ void mouse(int button, int state, int x, int y) {
  * Called when mouse moves without button pressed.
  */
 void passiveMotion(int x, int y) {
-	y = glutGet(GLUT_WINDOW_HEIGHT) - y;
+	float rotateY = ((lastX - x) / glutGet(GLUT_WINDOW_WIDTH)) * 1000;
+	camera.rotateY(rotateY);
 	
-	if (x > lastX) {
-		camera.rotateY(-1.0);
-	} else if (x < lastX) {
-		camera.rotateY(1.0);
-	}
-	
-	if (y > lastY) {
-		camera.rotateX(1.0);
-	} else if (y < lastY) {
-		camera.rotateX(-1.0);
-	}
+	float rotateX = ((lastY - y) / glutGet(GLUT_WINDOW_HEIGHT)) * 1000;
+	camera.rotateX(rotateX);
 	
 	lastX = x;
 	lastY = y;

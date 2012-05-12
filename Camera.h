@@ -8,17 +8,18 @@
 
 class Camera {
 private:
-	Vector3 viewDir;
 	Vector3 rightVector;	
 	Vector3 upVector;
-	Vector3 position;
 
 	float rotatedX, rotatedY, rotatedZ;	
 	
 public:
-	Camera();				//inits the values (Position: (0|0|0) Target: (0|0|-1) )
-	void render();	//executes some glRotates and a glTranslate command
-							//Note: You should call glLoadIdentity before using Render
+	Camera();
+	
+	Vector3 viewDir;
+	Vector3 position;
+	
+	void render();
 
 	void move(Vector3 direction);
 	void rotateX(float angle);

@@ -23,8 +23,16 @@ Asteroid::Asteroid(bool isSmall) {
 	
 	if (xDecider > 0) {
 		this->position = Vector3(10, y, z);
+		
+		if (xDir == 1) {
+			xDir = -1;
+		}
 	} else {
 		this->position = Vector3(-10, y, z);
+		
+		if (xDir == -1) {
+			xDir = 1;
+		}
 	}
 	
 	this->direction = Vector3(xDir, yDir, zDir);
