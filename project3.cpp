@@ -70,6 +70,14 @@ void keyboard(unsigned char key, int x, int y) {
 		case 114:
 			camera = Camera();
 			fillShapes = false;
+
+			asteroids.clear();
+
+			for (int i = 0; i < 49; i++) {
+				asteroids.push_back(Asteroid(false));
+			}
+
+			bullets.clear();
 			break;
 	}
 }

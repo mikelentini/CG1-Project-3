@@ -1,5 +1,5 @@
 #
-# Created by gmakemake (Sparc Apr  1 2012) on Fri May 11 21:39:43 2012
+# Created by gmakemake (Ubuntu Oct  3 2011) on Sun May 13 15:17:13 2012
 #
 
 #
@@ -7,15 +7,17 @@
 #
 
 .SUFFIXES:
-.SUFFIXES:	.a .o .c .C .cpp .s
+.SUFFIXES:	.a .o .c .C .cpp .s .S
 .c.o:
 		$(COMPILE.c) $<
 .C.o:
 		$(COMPILE.cc) $<
 .cpp.o:
 		$(COMPILE.cc) $<
+.S.s:
+		$(CPP) -o $*.s $<
 .s.o:
-		$(COMPILE.cc) $<
+		$(COMPILE.s) -o $@ $<
 .c.a:
 		$(COMPILE.c) -o $% $<
 		$(AR) $(ARFLAGS) $@ $%
@@ -29,6 +31,7 @@
 		$(AR) $(ARFLAGS) $@ $%
 		$(RM) $%
 
+AS =		as
 CC =		gcc
 CXX =		g++
 
@@ -36,9 +39,10 @@ RM = rm -f
 AR = ar
 LINK.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)
 LINK.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+COMPILE.s = $(AS) $(ASFLAGS)
 COMPILE.c = $(CC) $(CFLAGS) $(CPPFLAGS) -c
 COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
-
+CPP = $(CPP) $(CPPFLAGS)
 ########## Flags from header.mak
 
 #
@@ -52,11 +56,7 @@ COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
 INCLUDE =
 LIBDIRS =
 
-#this is for ubuntu
-#LDLIBS = -lglut -lGLU -lGL -lXext -lX11 -lm
-
-#this is for os x
-LDLIBS = -framework GLUT -framework OpenGL -framework Cocoa
+LDLIBS = -lglut -lGLU -lGL -lXext -lX11 -lm
 
 CFLAGS = -g $(INCLUDE)
 CCFLAGS =  $(CFLAGS)
@@ -71,6 +71,7 @@ CCLIBFLAGS = $(LIBFLAGS)
 
 CPP_FILES =	Asteroid.cpp Bullet.cpp Camera.cpp project3.cpp
 C_FILES =	
+PS_FILES =	
 S_FILES =	
 H_FILES =	Asteroid.h Bullet.h Camera.h vecmath.h
 SOURCEFILES =	$(H_FILES) $(CPP_FILES) $(C_FILES) $(S_FILES)
@@ -93,7 +94,7 @@ project3:	project3.o $(OBJFILES)
 Asteroid.o:	Asteroid.h vecmath.h
 Bullet.o:	Asteroid.h Bullet.h vecmath.h
 Camera.o:	Camera.h vecmath.h
-project3.o:	Asteroid.h Camera.h vecmath.h
+project3.o:	Asteroid.h Bullet.h Camera.h vecmath.h
 
 #
 # Housekeeping
@@ -105,7 +106,7 @@ archive.tgz:	$(SOURCEFILES) Makefile
 	tar cf - $(SOURCEFILES) Makefile | gzip > archive.tgz
 
 clean:
-	-/bin/rm $(OBJFILES) project3.o core 2> /dev/null
+	-/bin/rm -f $(OBJFILES) project3.o core
 
 realclean:        clean
-	-/bin/rm -rf project3 
+	-/bin/rm -f project3 

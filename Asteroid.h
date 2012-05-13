@@ -1,4 +1,5 @@
 #include "vecmath.h"
+#include <cstdlib>
 
 class Asteroid {
 public:
