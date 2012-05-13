@@ -44,27 +44,27 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		// space key
 		case 32:
-			camera.moveUpward(0.1);
+			camera.moveUpward(0.2);
 			break;
 		// 'z' key
 		case 122:
-			camera.moveUpward(-0.1);
+			camera.moveUpward(-0.2);
 			break;
 		// 'w' key
 		case 119:
-			camera.moveForward(-0.1);
+			camera.moveForward(-0.2);
 			break;
 		// 'a' key
 		case 97:
-			camera.strafeRight(-0.1);
+			camera.strafeRight(-0.2);
 			break;
 		// 's' key
 		case 115:
-			camera.moveForward(0.1);
+			camera.moveForward(0.2);
 			break;
 		// 'd' key
 		case 100:
-			camera.strafeRight(0.1);
+			camera.strafeRight(0.2);
 			break;
 		// 'r' key
 		case 114:
@@ -193,7 +193,7 @@ void setMainViewport(int w, int h) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
-	gluPerspective(60, w / h, 0.5f, 20);
+	gluPerspective(60, w / h, 0.5f, 40);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -208,7 +208,7 @@ void setSecondaryViewport(int width, int height) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
-	glOrtho(-10.1f, 10.1f, -10.1f, 10.1f, 0.5f, 20);
+	glOrtho(-10.1f, 10.1f, -10.1f, 10.1f, 0.5f, 25);
 	glMatrixMode(GL_MODELVIEW);
 	
 	glDisable(GL_SCISSOR_TEST);
