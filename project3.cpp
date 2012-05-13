@@ -44,11 +44,11 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		// space key
 		case 32:
-			camera.moveUpward(0.2);
+			camera.moveUp(0.2);
 			break;
 		// 'z' key
 		case 122:
-			camera.moveUpward(-0.2);
+			camera.moveUp(-0.2);
 			break;
 		// 'w' key
 		case 119:
@@ -56,7 +56,7 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		// 'a' key
 		case 97:
-			camera.strafeRight(-0.2);
+			camera.strafe(-0.2);
 			break;
 		// 's' key
 		case 115:
@@ -64,7 +64,7 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		// 'd' key
 		case 100:
-			camera.strafeRight(0.2);
+			camera.strafe(0.2);
 			break;
 		// 'r' key
 		case 114:
@@ -87,7 +87,11 @@ void keyboard(unsigned char key, int x, int y) {
  */
 void mouse(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		bullets.push_back(Bullet(camera.position, Vector3(camera.viewDir.x, camera.viewDir.y, camera.viewDir.z)));
+		bullets.push_back(Bullet(camera.position,
+								 Vector3(camera.viewDirection.x,
+										 camera.viewDirection.y,
+										 camera.viewDirection.z)
+								));
 	}
 }
 
